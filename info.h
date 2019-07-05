@@ -30,6 +30,9 @@ typedef struct{
 }I;
 
 void fileInfo(char *actual, int indent, int *totalbytes, int *numF);
+
 void info(struct dirent *entrada, int indent, int op, char * output, pid_t child);
+
+void lookSub(const char *actual, int indent, int op, char * output,pid_t child);
 
 #endif // INFO_H
