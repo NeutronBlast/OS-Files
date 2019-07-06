@@ -95,11 +95,23 @@ int main(int argc, char *argv[]) {
     }
 
     recorrido(".", 0,op,output);
+
+    FI numberFile;
+    numberFile.numF = 0;
+    numberFile.bytes = 0;
+
+    numberFile = lookFile(".",0,op,output,0,numberFile.numF,numberFile.bytes);
+    printf("files %d %d",numberFile.numF,numberFile.bytes);
     
+    //Esperar a que todos los hijos terminen para generar reporte final
     while ((wpid = wait(&status)) > 0);
+
     if (op == 1){
         Nchildren = Nchildren-1;
-        concatChildFIle(Nchildren, output,children);
+        infoFather(".", 0, op, output, numberFile);
+            for (int inicio =0; inicio<=Nchildren; inicio++){
+                concatChildFIle(Nchildren, output,children[inicio]);
+            }
     }
 
 

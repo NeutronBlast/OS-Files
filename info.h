@@ -25,15 +25,20 @@ typedef struct{
     gid_t groupid;
     time_t lastmod;
     time_t la;
-    int cont;
-    int totalbytes;
 }I;
+
+typedef struct {
+    int numF;
+    int bytes;
+}FI;
+
+void infoFather(char*path, int indent, int op, char * output,FI numbers);
 
 void fileInfo(char *actual, int indent, int *totalbytes, int *numF);
 
 void info(struct dirent *entrada, int indent, int op, char * output, pid_t child);
 
-void lookFile(char *actual, int indent, int op, char * output,pid_t child,int numF, int bytes);
+FI lookFile(char *actual, int indent, int op, char * output,pid_t child,int numF, int bytes);
 
 void lookSub(char *actual, int indent, int op, char * output,pid_t child,int numF, int bytes);
 
