@@ -33,6 +33,8 @@ void fileInfo(char *actual, int indent, int *totalbytes, int *numF);
 
 void info(struct dirent *entrada, int indent, int op, char * output, pid_t child);
 
-void lookSub(const char *actual, int indent, int op, char * output,pid_t child);
+void lookFile(char *actual, int indent, int op, char * output,pid_t child,int numF, int bytes);
+
+void lookSub(char *actual, int indent, int op, char * output,pid_t child,int numF, int bytes);
 
 #endif // INFO_H

@@ -3,7 +3,7 @@
 void concatChildFIle(int limit,char * output, pid_t children[]){
     FILE * fp;
     char texto[1000];
-    printf("output %s",output);
+    //printf("output %s",output);
     strcat(output,".txt");
     fp = fopen(output, "w");
     for(int inicio=0; inicio<=limit; inicio++){
@@ -11,14 +11,14 @@ void concatChildFIle(int limit,char * output, pid_t children[]){
     FILE *gc;
     sprintf(name, "%d", children[inicio]);
     strcat(name,".txt");
-    printf("Nombre de archivo hijo es %s\n", name);
+    //printf("Nombre de archivo hijo es %s\n", name);
     gc = fopen(name, "r");
 
 
         if (gc == NULL) 
         /*Si hay errores en el archivo*/
         {
-            perror("No fue posible abrir el archivo nieto\n");
+            perror("No fue posible abrir el archivo");
             exit(0);
         }
         
@@ -26,6 +26,7 @@ void concatChildFIle(int limit,char * output, pid_t children[]){
     while (!feof(gc)){
         fgets(texto, 1000, gc);
         fprintf(fp, "%s", texto);
+        strcpy(texto,"");
     }
     fclose(gc);
 

@@ -48,15 +48,19 @@ void recorrido(const char *actual, int indent, int op, char * output)
                 strcpy(path, actual); //Se concatena el nombre para buscar si hay subdirectorios
                 strcat(path, "/");
                 strcat(path, entrada->d_name);
-                printf("path %s\n", path);
+                //printf("path %s\n", path);
                 cont = frequency(path);
 
 
                 if (cont==1){
                     if ((children[Nchildren] = fork()) == 0){
                         children[Nchildren] = getpid();
+                        //Informacion del directorio
                         info(entrada,indent,op,output,children[Nchildren]);
-                        lookSub(path, indent, op, output,children[Nchildren]);
+                        //Buscar archivos en ese directorio
+                        lookFile(path, indent, op, output, children[Nchildren],0,0);
+                        //Buscar por subdirectorios
+                        lookSub(path, indent, op, output,children[Nchildren],0,0);
                         exit(0);
                         }
                     Nchildren++;

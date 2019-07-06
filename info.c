@@ -1,74 +1,32 @@
 #include "info.h"
 #include "utilities.h"
 
-/* void fileInfo(char *actual, int indent, int *totalbytes, int *numF){
-    DIR *dir;
-    struct dirent *entrada;
+void infoFile(char*path, int indent, int op, char * output,pid_t child,int numF,int bytes){
 
-    char path[PATH_MAX+1];
-    char path2[PATH_MAX+1];
-
-
-    if (!(dir = opendir(actual))){
-        return;
+    if (stat(path, &statbuf) == 1) {
+    fprintf(stderr, " No se pudo aplicar stat sobre el archivo %s: %s \n", path, strerror(errno));
+    exit(1);
     }
 
-    while ((entrada = readdir(dir)) != NULL)
-    {
-    if (entrada->d_type != DT_DIR){ //No es un directorio
-
-        if (strcmp(actual, "") == 0)
-            {
-                strcpy(path2, "./"); //Se concatena para tener ./ empezando
-                strcat(path2, entrada->d_name);
-                strcpy(actual, path2);
-                printf("File path is %s\n",path2);
-            }
-            else
-            {
-
-                strcpy(path2, actual); //Se concatena para tener toda la ruta completa
-                strcat(path2, "/");
-                strcat(path2, entrada->d_name);
-
-                FILE* fp = fopen(path2,"r");
-                fseek(fp,0,SEEK_END);
-                int Fbytes = ftell(fp);
-
-                    if (Fbytes==-1){
-                        perror("Archivo");
-                        exit(1);
-                    }
-
-                fclose(fp);
-                printf("Bytes of file is %d ", Fbytes);
-                printf("File path is %s\n", path2);
-                //fileInfo(path, indent, totalbytes+=Fbytes, numF++);
-                //totalbytes = totalbytes + bytes;
-            }
-
-       }
-
-        else{
-            if ((strcmp(entrada->d_name, ".") != 0) && (strcmp(entrada->d_name, "..") != 0)) //Que no tome en cuenta el "." ni ".."
-            {                                
-                strcpy(path, actual); //Se concatena el nombre para buscar si hay subdirectorios
-                strcat(path, "/");
-
-                //Directorio en entrada
-                strcat(path, entrada->d_name);
-
-                fileInfo(path, indent, totalbytes, numF++);
-            }
-        } //Es un directorio
-
-
+    if (op == 0){
+        printf("\tINFORMACION DE LOS ARCHIVOS\n\n");
+        printf("Number of files %d\n",numF);
+        printf("Total of bytes %d\n\n\n",bytes);
     }
 
-    closedir(dir);
-    fileInfo(path, indent+2, totalbytes, numF++);
+    FILE *fp;
+    char name[PATH_MAX+1];
 
-}*/
+    sprintf(name, "%d", child);
+    strcat(name,".txt");
+    //printf("name of file %s\n",name);
+    fp = fopen(name, "a");
+    fprintf(fp, "%d %c", numF, ' ');
+    fprintf(fp, "%d %c", bytes, ' ');
+    fprintf(fp, "%s", "\n");
+
+    fclose(fp);
+}
 
 void info(struct dirent *entrada, int indent, int op, char * output,pid_t child){
     I info;
@@ -83,6 +41,7 @@ void info(struct dirent *entrada, int indent, int op, char * output,pid_t child)
     if ((info.bits & S_IRUSR) == 0){
         info.perms = (char*)malloc(sizeof(char)*47);
         strcpy(info.perms,"Usuario no tiene permiso de leer este archivo");
+        return;
     }
 
     info.bytes = statbuf.st_size;
@@ -115,9 +74,9 @@ void info(struct dirent *entrada, int indent, int op, char * output,pid_t child)
 
     info.cont = 0;
     info.totalbytes = 0; 
-    //fileInfo(info.abpath,indent,&info.totalbytes,&info.cont);
 
     if (op == 0){
+        /*Esto no va, es solo para saber*/
         printf("\tINFORMACION DEL ARCHIVO\n\n");
         printf("Mi path absoluto es %s\n",info.abpath);    
         printf("Tamaño en bytes: %ld bytes\n",info.bytes);
@@ -127,8 +86,6 @@ void info(struct dirent *entrada, int indent, int op, char * output,pid_t child)
         printf("Grupo %d\n", info.groupid);
         printf("Ultimo acceso %s",ctime(&info.lastmod));
         printf("Ultima modificacion %s",ctime(&info.la));
-        printf("Number of files %d\n",info.cont);
-        printf("Total of bytes %d\n\n\n",info.totalbytes);
     }
 
     FILE *fp;
@@ -136,7 +93,7 @@ void info(struct dirent *entrada, int indent, int op, char * output,pid_t child)
 
     sprintf(name, "%d", child);
     strcat(name,".txt");
-    printf("name of file %s\n",name);
+    //printf("name of file %s\n",name);
     fp = fopen(name, "a");
 
     fprintf(fp, "%s %c", info.abpath, ' ');
@@ -145,9 +102,6 @@ void info(struct dirent *entrada, int indent, int op, char * output,pid_t child)
     fprintf(fp, "%s %d %s", "(",info.userid,") ");
     fprintf(fp, "%d %c", info.groupid, ' ');
     fprintf(fp, "%s %c", ctime(&info.lastmod), ' ');
-    fprintf(fp, "%d %c", info.cont, ' ');
-    fprintf(fp, "%d %c", info.totalbytes, ' ');
-    fprintf(fp, "%s", "\n");
     free(info.luser);   
 
     fclose(fp);
@@ -212,8 +166,6 @@ void infoSub(char*path, int indent, int op, char * output,pid_t child){
         printf("Grupo %d\n", info.groupid);
         printf("Ultimo acceso %s",ctime(&info.lastmod));
         printf("Ultima modificacion %s",ctime(&info.la));
-        printf("Number of files %d\n",info.cont);
-        printf("Total of bytes %d\n\n\n",info.totalbytes);
     }
 
     FILE *fp;
@@ -221,7 +173,7 @@ void infoSub(char*path, int indent, int op, char * output,pid_t child){
 
     sprintf(name, "%d", child);
     strcat(name,".txt");
-    printf("name of file %s\n",name);
+    //printf("name of file %s\n",name);
     fp = fopen(name, "a");
 
     fprintf(fp, "%s %c", info.abpath, ' ');
@@ -230,9 +182,6 @@ void infoSub(char*path, int indent, int op, char * output,pid_t child){
     fprintf(fp, "%s %d %s", "(",info.userid,") ");
     fprintf(fp, "%d %c", info.groupid, ' ');
     fprintf(fp, "%s %c", ctime(&info.lastmod), ' ');
-    fprintf(fp, "%d %c", info.cont, ' ');
-    fprintf(fp, "%d %c", info.totalbytes, ' ');
-    fprintf(fp, "%s", "\n");
     free(info.luser);   
 
     fclose(fp);
@@ -240,13 +189,76 @@ void infoSub(char*path, int indent, int op, char * output,pid_t child){
     //Para el numero de archivos se necesitara otra funcion donde se cuenten cuantos archivos hay y se sumen los bytes para cada uno
 }
 
-void lookSub(const char *actual, int indent, int op, char * output,pid_t child)
+void lookFile(char *actual, int indent, int op, char * output,pid_t child,int numF, int bytes)
 {
     /*Buscar todos los subdirectorios*/
     DIR *dir;
     struct dirent *entrada;
-    printf("child pid %d   parent pid %d\n",getpid(),getppid());fflush(stdout);
-    printf("path actual %s\n", actual);
+    //printf("child pid %d   parent pid %d\n",getpid(),getppid());fflush(stdout);
+    //printf("path actual %s\n", actual);
+
+    char path2[PATH_MAX+1];
+
+    if (!(dir = opendir(actual))){
+    return;
+    }
+
+
+    while ((entrada = readdir(dir)) != NULL)
+    /* Mientras consiga archivos*/
+    {
+
+        if (entrada->d_type != DT_DIR){ //No es un directorio
+
+            if (strcmp(actual, "") == 0){
+                strcpy(path2, "./"); //Se concatena para tener ./ empezando
+                strcat(path2, entrada->d_name);
+                strcpy(actual, path2);
+            }
+            else
+            {
+                strcpy(path2, actual); //Se concatena para tener toda la ruta completa
+                strcat(path2, "/");
+                strcat(path2, entrada->d_name);
+                //printf("File path is %s\n",path2);
+
+                FILE* fp = fopen(path2,"r");
+                fseek(fp,0,SEEK_END);
+                int Fbytes = ftell(fp);
+                bytes+=Fbytes;
+                numF++;
+
+                    if (Fbytes==-1){
+                        perror("Archivo");
+                        exit(1);
+                    }
+
+                fclose(fp);
+                //printf("Bytes in total is %d ", bytes);
+                //printf("Number of files is %d\n",numF);
+            }
+        }
+        else if (entrada->d_type == DT_DIR){
+            if ((strcmp(entrada->d_name, ".") != 0) && (strcmp(entrada->d_name, "..") != 0)) //Que no tome en cuenta el "." ni ".."
+            { 
+                numF++;
+            }
+        }
+
+    }
+    printf("por aqui %s %d %d\n\n\n\n",actual, numF,bytes);
+    infoFile(actual,indent,op,output,child,numF,bytes);
+    closedir(dir);
+
+}
+
+void lookSub(char *actual, int indent, int op, char * output,pid_t child,int numF, int bytes)
+{
+    /*Buscar todos los subdirectorios*/
+    DIR *dir;
+    struct dirent *entrada;
+    //printf("child pid %d   parent pid %d\n",getpid(),getppid());fflush(stdout);
+    //printf("path actual %s\n", actual);
 
 
     char path[PATH_MAX+1];
@@ -271,12 +283,14 @@ void lookSub(const char *actual, int indent, int op, char * output,pid_t child)
 
                 infoSub(path,indent,op,output,child);
 
-                lookSub(path, indent + 2,op,output,child);
+                //Por cada subdirectorio le busco los archivos
+                lookFile(path, indent, op, output, child,0,0);
+
+                lookSub(path, indent + 2,op,output,child,numF++,bytes);
             }
         }
+
     }
 
-
     closedir(dir);
-
 }
