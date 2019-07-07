@@ -9,6 +9,7 @@
 #include <sys/wait.h>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <signal.h> 
 #include <limits.h>
 #include <errno.h>
 #include <time.h>
@@ -81,6 +82,9 @@ void recorrido(const char *actual, int indent, int op, char * output)
 }
 
 int main(int argc, char *argv[]) {
+
+    signal(SIGINT, SIG_IGN); // se ignora Ctrl-C 
+    
     int op = 0;
     char * output = NULL;
 

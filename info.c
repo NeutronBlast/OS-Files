@@ -14,6 +14,7 @@ void infoFather(char*path, int indent, int op, char * output,FI numbers){
     if ((info.bits & S_IRUSR) == 0){
         info.perms = (char*)malloc(sizeof(char)*47);
         strcpy(info.perms,"Usuario no tiene permiso de leer este archivo");
+        return;
     }
 
     info.bytes = statbuf.st_size;
@@ -126,6 +127,7 @@ void infoSub(char*path, int indent, int op, char * output,pid_t child){
     if ((info.bits & S_IRUSR) == 0){
         info.perms = (char*)malloc(sizeof(char)*47);
         strcpy(info.perms,"Usuario no tiene permiso de leer este archivo");
+        return;
     }
 
     info.bytes = statbuf.st_size;
