@@ -39,7 +39,7 @@ void infoFather(char*path, int indent, int op, char * output,FI numbers);
 
 void fileInfo(char *actual, int indent, int *totalbytes, int *numF);
 
-void info(struct dirent *entrada, int indent, int op, char * output, pid_t child);
+void infoSub(char*path, int indent, int op, char * output,pid_t child);
 
 FI lookFile(char *actual, int indent, int op, char * output,pid_t child,int numF, int bytes);
 

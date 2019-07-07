@@ -64,9 +64,9 @@ void infoFather(char*path, int indent, int op, char * output,FI numbers){
     fprintf(fp, "%s %c", info.abpath, ' ');
     fprintf(fp, "%s %c", info.perms, ' ');
     fprintf(fp, "%s", info.luser);
-    fprintf(fp, "%s %d %s", "(",info.userid,") ");
+    fprintf(fp, "%s%d%s", "(",info.userid,") ");
     fprintf(fp, "%s", info.group);
-    fprintf(fp, "%s %d %s","(", info.groupid, ") ");
+    fprintf(fp, "%s%d%s","(", info.groupid, ") ");
     fprintf(fp, "%s %c", ctime(&info.lastmod), ' ');
     fprintf(fp, "%s", ctime(&info.la));
     fprintf(fp, "%d %c", numbers.numF, ' ');
@@ -109,81 +109,6 @@ void infoFile(char*path, int indent, int op, char * output,pid_t child,int numF,
     fprintf(fp, "%d %c", numF, ' ');
     fprintf(fp, "%d %c", bytes, ' ');
     fprintf(fp, "%s", "\n");
-
-    fclose(fp);
-}
-
-void info(struct dirent *entrada, int indent, int op, char * output,pid_t child){
-    I info;
-
-    if (stat(entrada->d_name, &statbuf) == 1) {
-    fprintf(stderr, " No se pudo aplicar stat sobre el archivo %s: %s \n", entrada->d_name, strerror(errno));
-    exit(1);
-    }
-
-    realpath(entrada->d_name, info.abpath);
-    info.bits = statbuf.st_mode;
-    if ((info.bits & S_IRUSR) == 0){
-        info.perms = (char*)malloc(sizeof(char)*47);
-        strcpy(info.perms,"Usuario no tiene permiso de leer este archivo");
-        return;
-    }
-
-    info.bytes = statbuf.st_size;
-
-    info.perms = (char*)malloc(sizeof(char)*11);
-    info.perms[0]= (S_ISDIR(statbuf.st_mode)) ? 'd' : '-';
-    info.perms[1]=(statbuf.st_mode & S_IRUSR) ? 'r' : '-';
-    info.perms[2]=(statbuf.st_mode & S_IWUSR) ? 'w' : '-';
-    info.perms[3]=(statbuf.st_mode & S_IXUSR) ? 'x' : '-';
-    info.perms[4]=(statbuf.st_mode & S_IRGRP) ? 'r' : '-';
-    info.perms[5]=(statbuf.st_mode & S_IWGRP) ? 'w' : '-';
-    info.perms[6]=(statbuf.st_mode & S_IXGRP) ? 'x' : '-';
-    info.perms[7]=(statbuf.st_mode & S_IROTH) ? 'r' : '-';
-    info.perms[8]=(statbuf.st_mode & S_IWOTH) ? 'w' : '-';
-    info.perms[9]=(statbuf.st_mode & S_IXOTH) ? 'x' : '-';
-    info.perms[10]=' ';
-    info.perms[11]='\0';
-
-
-    info.userid = statbuf.st_uid;
-
-    info.userid = statbuf.st_uid;
-    struct passwd *pw = getpwuid(statbuf.st_uid);
-
-    //printf("username is %s\n",username);
-
-    int n = strlen(info.abpath);
-    info.luser = (char*)malloc(sizeof(char)*n);
-    strcpy(info.luser, pw->pw_name);
-
-    info.groupid = statbuf.st_gid;
-
-    struct group *g = getgrgid(statbuf.st_gid);
-
-    info.group = (char*)malloc(sizeof(char)*n);
-    strcpy(info.group, g->gr_name);
-
-    info.lastmod = statbuf.st_ctime;
-    info.la = statbuf.st_atime;
-
-    FILE *fp;
-    char name[PATH_MAX+1];
-
-    sprintf(name, "%d", child);
-    strcat(name,".txt");
-    //printf("name of file %s\n",name);
-    fp = fopen(name, "a");
-
-    fprintf(fp, "%s %c", info.abpath, ' ');
-    fprintf(fp, "%s %c", info.perms, ' ');
-    fprintf(fp, "%s", info.luser);
-    fprintf(fp, "%s %d %s", "(",info.userid,") ");
-    fprintf(fp, "%s", info.group);
-    fprintf(fp, "%s %d %s","(", info.groupid, ") ");
-    fprintf(fp, "%s %c", ctime(&info.lastmod), ' ');
-    fprintf(fp, "%s", ctime(&info.la));
-    free(info.luser);   
 
     fclose(fp);
 }
@@ -253,9 +178,9 @@ void infoSub(char*path, int indent, int op, char * output,pid_t child){
     fprintf(fp, "%s %c", info.abpath, ' ');
     fprintf(fp, "%s %c", info.perms, ' ');
     fprintf(fp, "%s", info.luser);
-    fprintf(fp, "%s %d %s", "(",info.userid,") ");
+    fprintf(fp, "%s%d%s", "(",info.userid,") ");
     fprintf(fp, "%s", info.group);
-    fprintf(fp, "%s %d %s","(", info.groupid, ") ");
+    fprintf(fp, "%s%d%s","(", info.groupid, ") ");
     fprintf(fp, "%s %c", ctime(&info.lastmod), ' ');
     fprintf(fp, "%s", ctime(&info.la));
     free(info.luser);   

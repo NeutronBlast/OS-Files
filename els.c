@@ -58,7 +58,7 @@ void recorrido(const char *actual, int indent, int op, char * output)
                     if ((children[Nchildren] = fork()) == 0){
                         children[Nchildren] = getpid();
                         //Informacion del directorio
-                        info(entrada,indent,op,output,children[Nchildren]);
+                        infoSub(path,indent,op,output,children[Nchildren]);
                         //Buscar archivos en ese directorio
                         lookFile(path, indent, op, output, children[Nchildren],0,0);
                         //Buscar por subdirectorios
