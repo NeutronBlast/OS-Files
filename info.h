@@ -1,7 +1,9 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <stdio.h>
+#include <grp.h>
 #include <string.h>
+#include <pwd.h>
 #include <stdlib.h>
 #include <fcntl.h>
 #include <dirent.h>
@@ -23,6 +25,7 @@ typedef struct{
     uid_t userid;
     char * luser;
     gid_t groupid;
+    char * group;
     time_t lastmod;
     time_t la;
 }I;

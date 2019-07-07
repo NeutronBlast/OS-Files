@@ -8,7 +8,7 @@ FI getTotalBN(char*texto){
     strcpy(au,"");
     strcpy(bytes,"");
     int i = 0;
-    printf("texto de entrada es %s\n",texto);
+    //printf("texto de entrada es %s\n",texto);
         for (i = 0; texto[i]!=' '; i++){
             if (texto[i]!=2)
                 au[i] = texto[i];
@@ -35,12 +35,16 @@ FI getTotalBN(char*texto){
 }
 
 
-void concatChildFIle(int limit,char * output, pid_t child){
+void concatChildFIle(int limit,char * output, int op, pid_t child){
     FILE * fp;
     FI fileNumber;
     char texto[1000];
     //printf("output %s",output);
-    fp = fopen(output, "a");
+
+    if (op == 1)
+        fp = fopen(output, "a");
+
+
     char name[1000];    
     FILE *gc;
     sprintf(name, "%d", child);
@@ -83,7 +87,11 @@ void concatChildFIle(int limit,char * output, pid_t child){
                 if (texto[0]>=48 && texto[0]<=57){
                     break;
                 }
-        fprintf(fp,"%s",texto);
+        if (op == 1)
+            fprintf(fp,"%s",texto);
+        else if (op == 0){
+            printf("%s",texto);
+        }
         strcpy(texto,"");
     }
     //printf("esto fue fin de archivo %d .txt\n\n\n\n\n",child);
@@ -91,11 +99,16 @@ void concatChildFIle(int limit,char * output, pid_t child){
 
     //Aqui se copia el total calculado
 
+    if (op == 1){
+        fprintf(fp,"%d %c",sumaN,' ');
+        fprintf(fp, "%d %c", sumaB, ' ');
+        fprintf(fp, "%s", "\n");
 
-    fprintf(fp,"%d %c",sumaN,' ');
-    fprintf(fp, "%d %c", sumaB, ' ');
-    fprintf(fp, "%s", "\n");
+        fclose(fp);
+    }
 
-    fclose(fp);
+    else if (op == 0){
+        printf("%d %d \n",sumaN,sumaB);
+    }
     
 }

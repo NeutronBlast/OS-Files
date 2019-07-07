@@ -34,16 +34,28 @@ void infoFather(char*path, int indent, int op, char * output,FI numbers){
 
 
     info.userid = statbuf.st_uid;
+    struct passwd *pw = getpwuid(statbuf.st_uid);
+
+    //printf("username is %s\n",username);
 
     int n = strlen(info.abpath);
     info.luser = (char*)malloc(sizeof(char)*n);
-    usr(info.abpath, info.luser);
+    strcpy(info.luser, pw->pw_name);
 
 
     info.groupid = statbuf.st_gid;
+
+    struct group *g = getgrgid(statbuf.st_gid);
+
+    info.group = (char*)malloc(sizeof(char)*n);
+    strcpy(info.group, g->gr_name);
+
+    //printf("group is %s\n",info.group);
+
     info.lastmod = statbuf.st_ctime;
     info.la = statbuf.st_atime;
 
+    if (op == 1){
     FILE *fp;
     char name[PATH_MAX+1];
     strcpy(name,output);
@@ -53,7 +65,8 @@ void infoFather(char*path, int indent, int op, char * output,FI numbers){
     fprintf(fp, "%s %c", info.perms, ' ');
     fprintf(fp, "%s", info.luser);
     fprintf(fp, "%s %d %s", "(",info.userid,") ");
-    fprintf(fp, "%d %c", info.groupid, ' ');
+    fprintf(fp, "%s", info.group);
+    fprintf(fp, "%s %d %s","(", info.groupid, ") ");
     fprintf(fp, "%s %c", ctime(&info.lastmod), ' ');
     fprintf(fp, "%s", ctime(&info.la));
     fprintf(fp, "%d %c", numbers.numF, ' ');
@@ -62,6 +75,21 @@ void infoFather(char*path, int indent, int op, char * output,FI numbers){
     free(info.luser);   
 
     fclose(fp);
+    }
+
+    else if (op == 0){
+        printf("%s ", info.abpath);
+        printf("%s ", info.perms);
+        printf("%s", info.luser);
+        printf("(%d) ",info.userid);
+        printf("%s", info.group);
+        printf("(%d) ", info.groupid);
+        printf("%s ", ctime(&info.lastmod));
+        printf("%s", ctime(&info.la));
+        printf("%d ", numbers.numF);
+        printf("%d ", numbers.bytes);
+        printf("%s", "\n");
+    }
 }
 
 void infoFile(char*path, int indent, int op, char * output,pid_t child,int numF,int bytes){
@@ -120,12 +148,22 @@ void info(struct dirent *entrada, int indent, int op, char * output,pid_t child)
 
     info.userid = statbuf.st_uid;
 
+    info.userid = statbuf.st_uid;
+    struct passwd *pw = getpwuid(statbuf.st_uid);
+
+    //printf("username is %s\n",username);
+
     int n = strlen(info.abpath);
     info.luser = (char*)malloc(sizeof(char)*n);
-    usr(info.abpath, info.luser);
-
+    strcpy(info.luser, pw->pw_name);
 
     info.groupid = statbuf.st_gid;
+
+    struct group *g = getgrgid(statbuf.st_gid);
+
+    info.group = (char*)malloc(sizeof(char)*n);
+    strcpy(info.group, g->gr_name);
+
     info.lastmod = statbuf.st_ctime;
     info.la = statbuf.st_atime;
 
@@ -141,7 +179,8 @@ void info(struct dirent *entrada, int indent, int op, char * output,pid_t child)
     fprintf(fp, "%s %c", info.perms, ' ');
     fprintf(fp, "%s", info.luser);
     fprintf(fp, "%s %d %s", "(",info.userid,") ");
-    fprintf(fp, "%d %c", info.groupid, ' ');
+    fprintf(fp, "%s", info.group);
+    fprintf(fp, "%s %d %s","(", info.groupid, ") ");
     fprintf(fp, "%s %c", ctime(&info.lastmod), ' ');
     fprintf(fp, "%s", ctime(&info.la));
     free(info.luser);   
@@ -183,12 +222,23 @@ void infoSub(char*path, int indent, int op, char * output,pid_t child){
 
     info.userid = statbuf.st_uid;
 
+    info.userid = statbuf.st_uid;
+    struct passwd *pw = getpwuid(statbuf.st_uid);
+
+    //printf("username is %s\n",username);
+
     int n = strlen(info.abpath);
     info.luser = (char*)malloc(sizeof(char)*n);
-    usr(info.abpath, info.luser);
+    strcpy(info.luser, pw->pw_name);
 
 
     info.groupid = statbuf.st_gid;
+
+    struct group *g = getgrgid(statbuf.st_gid);
+
+    info.group = (char*)malloc(sizeof(char)*n);
+    strcpy(info.group, g->gr_name);
+
     info.lastmod = statbuf.st_ctime;
     info.la = statbuf.st_atime;
 
@@ -204,7 +254,8 @@ void infoSub(char*path, int indent, int op, char * output,pid_t child){
     fprintf(fp, "%s %c", info.perms, ' ');
     fprintf(fp, "%s", info.luser);
     fprintf(fp, "%s %d %s", "(",info.userid,") ");
-    fprintf(fp, "%d %c", info.groupid, ' ');
+    fprintf(fp, "%s", info.group);
+    fprintf(fp, "%s %d %s","(", info.groupid, ") ");
     fprintf(fp, "%s %c", ctime(&info.lastmod), ' ');
     fprintf(fp, "%s", ctime(&info.la));
     free(info.luser);   
@@ -269,14 +320,13 @@ FI lookFile(char *actual, int indent, int op, char * output,pid_t child,int numF
         else if (entrada->d_type == DT_DIR){
             if ((strcmp(entrada->d_name, ".") != 0) && (strcmp(entrada->d_name, "..") != 0)) //Que no tome en cuenta el "." ni ".."
             { 
-                printf("entrada %s\n",entrada->d_name);
                 numF++;
                 aux.numF = numF;
             }
         }
 
     }
-    printf("por aqui %s %d %d\n\n\n\n",actual, numF,bytes);
+    //printf("por aqui %s %d %d\n\n\n\n",actual, numF,bytes);
     if (child != 0)
         infoFile(actual,indent,op,output,child,numF,bytes);
     closedir(dir);

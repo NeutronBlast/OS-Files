@@ -6,6 +6,6 @@
 #ifndef REPORTE_H
 #define REPORTE_H
 
-void concatChildFIle(int limit,char * output,pid_t child);
+void concatChildFIle(int limit,char * output,int op,pid_t child);
 
 #endif // REPORTE_H
