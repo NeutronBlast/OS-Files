@@ -80,17 +80,28 @@ void concatChildFIle(int limit,char * output, int op, pid_t child){
 
     rewind(gc);
 
+    int cont = 0;
+
     //Copiar informacion del directorio hijo
     while (!feof(gc)){
         fgets(texto, 1000, gc);
             //Si es 0 o es un entero
                 if (texto[0]>=48 && texto[0]<=57){
-                    break;
+                    continue;
                 }
-        if (op == 1)
-            fprintf(fp,"%s",texto);
+        if (op == 1){
+            if (texto[0]=='/' || texto[0]==' ')
+                cont++;
+
+            if (cont<=2)
+                fprintf(fp,"%s",texto);
+        }
         else if (op == 0){
-            printf("%s",texto);
+            if (texto[0]=='/' || texto[0]==' ')
+                cont++;
+
+            if (cont<=2)
+                printf("%s",texto);
         }
         strcpy(texto,"");
     }
@@ -108,7 +119,6 @@ void concatChildFIle(int limit,char * output, int op, pid_t child){
     }
 
     else if (op == 0){
-        printf("%d %d \n",sumaN,sumaB);
+        printf("%d %d\n",sumaN,sumaB);
     }
-    
 }

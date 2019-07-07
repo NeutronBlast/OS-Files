@@ -59,7 +59,7 @@ void infoFather(char*path, int indent, int op, char * output,FI numbers){
     FILE *fp;
     char name[PATH_MAX+1];
     strcpy(name,output);
-    fp = fopen(name, "w");
+    fp = fopen(name, "a");
 
     fprintf(fp, "%s %c", info.abpath, ' ');
     fprintf(fp, "%s %c", info.perms, ' ');
@@ -190,6 +190,44 @@ void infoSub(char*path, int indent, int op, char * output,pid_t child){
     //Para el numero de archivos se necesitara otra funcion donde se cuenten cuantos archivos hay y se sumen los bytes para cada uno
 }
 
+void reporte(char path [], int size, time_t mod,pid_t child, char*output){
+    /*Reporte para archivo core*/
+    FILE * txt;
+    char name [PATH_MAX+1];    
+    if (child !=0){
+        sprintf(name, "%d", child);
+        strcat(name,".txt");
+    }
+
+    else if (child == 0 && strcmp(output,"nooutputgiven")!=0) {
+        //printf("output in father %s\n",output);
+        strcpy(name,output);
+        //printf("name %s\n",name);
+    }
+
+    if (strlen(name)!=0){
+    txt = fopen (name, "a");
+    
+    //printf("info given %s %d %s name: %s\n",path,size,ctime(&mod),name);
+ 
+    fprintf(txt,"%s","Informacion de archivo core generado:\n");
+    fprintf(txt, "%s%s%s", "path: ",path,"\n");
+    fprintf(txt, "%s%d%s","size: " ,size,"\n");
+    fprintf(txt, "%s%s%s", "ultima modificacion: ",ctime(&mod),"\n");
+    fclose(txt);
+
+    }
+
+    if (strcmp(output,"nooutputgiven")==0 && child == 0){
+        printf("Informacion de archivo core generado:\n");
+        printf("Ruta: %s\n", path);
+        printf("Size: %d\n", size);
+        printf("Fecha de ultima modificacion: %s\n", ctime(&mod));
+    }
+    
+
+}
+
 FI lookFile(char *actual, int indent, int op, char * output,pid_t child,int numF, int bytes)
 {
     FI aux;
@@ -200,6 +238,9 @@ FI lookFile(char *actual, int indent, int op, char * output,pid_t child,int numF
     //printf("path actual %s\n", actual);
 
     char path2[PATH_MAX+1];
+    /*trae los ultimos 4 char del nombre del archivo*/
+
+
 
     if (!(dir = opendir(actual))){
     return aux;
@@ -209,20 +250,68 @@ FI lookFile(char *actual, int indent, int op, char * output,pid_t child,int numF
     while ((entrada = readdir(dir)) != NULL)
     /* Mientras consiga archivos*/
     {
+    char *last_four = NULL;
+    last_four = (char*)malloc(sizeof(char)*5);
+    int i = strlen(entrada->d_name);
+    last_four = strncpy(last_four,entrada->d_name+(i-4),4);
+    last_four[4]='\0';
 
         if (entrada->d_type != DT_DIR){ //No es un directorio
+            //printf("Last four act %s\n",last_four);
+        if(last_four[0]=='.' && last_four[1]=='d' && last_four[2]=='m' && last_four[3]=='p'){
+            
+                strcpy(path2, actual); //Se concatena para tener toda la ruta completa
+                strcat(path2, "/");
+                strcat(path2, entrada->d_name);
+
+            //printf("Encontre un archivo core %s\n",path2);
+
+            char realPcore[PATH_MAX+1];
+
+            realpath(path2,realPcore);
+            stat(path2,&statbuf);
+            time_t lastmod = statbuf.st_atime;
+            size_t size=statbuf.st_size;
+            //printf("Informacion: Real path %s Last mod: %s Size: %ld\n",realPcore,ctime(&lastmod),size);
+
+            if (output==NULL){
+                char * output2;
+                output2 = (char*)malloc(sizeof(char)*15);
+                strcpy(output2,"nooutputgiven");
+                //printf("Le estoy pasando estos parametros %d %s\n",child,output2);
+                reporte(realPcore, size, lastmod,child,output2);
+            }
+
+            else if (output!=NULL) {
+                //("output in father is %s\n",output);
+                reporte(realPcore, size, lastmod,child,output);
+            }
+            remove(path2);
+
+            continue;
+            //printf("eliminado un archivo core %s\n",path2);
+        }
 
             if (strcmp(actual, "") == 0){
                 strcpy(path2, "./"); //Se concatena para tener ./ empezando
                 strcat(path2, entrada->d_name);
                 strcpy(actual, path2);
+
+                //printf("lastfour of this file is %s\n",last_four);
             }
             else
             {
                 strcpy(path2, actual); //Se concatena para tener toda la ruta completa
                 strcat(path2, "/");
                 strcat(path2, entrada->d_name);
-                //printf("File path is %s\n",path2);
+                //printf("File path is %s\n",entrada->d_name);
+
+                //printf("lastfour of this file is %s\n",last_four);
+                //printf("test[0]%c\n",last_four[0]);
+                //printf("test[1]%c\n",last_four[1]);
+                //printf("test[2]%c\n",last_four[2]);
+                //printf("test[3]%c\n",last_four[3]);
+
 
                 FILE* fp = fopen(path2,"r");
                 fseek(fp,0,SEEK_END);

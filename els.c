@@ -98,6 +98,11 @@ int main(int argc, char *argv[]) {
     numberFile.numF = Nchildren;
     numberFile.bytes = 0;
 
+    if (op == 1){
+        FILE * s = fopen(output,"w");
+        fclose(s);
+    }
+
     numberFile = lookFile(".",0,op,output,0,numberFile.numF,numberFile.bytes);
     //printf("files %d %d",numberFile.numF,numberFile.bytes);
     
@@ -106,10 +111,15 @@ int main(int argc, char *argv[]) {
 
     Nchildren = Nchildren-1;
 
-    if (op == 0)
+    if (op == 0){
         printf("\t\tREPORTE FINAL\n\n");
+        infoFather(".", 0, op, output, numberFile);
+    }
 
-    infoFather(".", 0, op, output, numberFile);
+    else if (op == 1){
+        infoFather(".", 0, op, output, numberFile);
+    }
+
         for (int inicio =0; inicio<=Nchildren; inicio++){
             concatChildFIle(Nchildren, output, op, children[inicio]);
         }
